@@ -1,45 +1,16 @@
 {
+    "version": 2,
     "builds": [
-        {
-            "src": "auth/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "dashboard/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "transaksi/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "laporan/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "budgeting/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "data/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "config/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "services/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "includes/*.php",
-            "use": "vercel-php@0.7.1"
-        },
-        {
-            "src": "assets/**",
-            "use": "@vercel/static"
-        }
+        { "src": "auth/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "dashboard/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "transaksi/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "laporan/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "budgeting/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "data/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "config/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "services/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "includes/*.php", "use": "vercel-php@0.7.1" },
+        { "src": "assets/**", "use": "@vercel/static" }
     ],
     "routes": [
         { "src": "/assets/(.*)", "dest": "/assets/$1" },
