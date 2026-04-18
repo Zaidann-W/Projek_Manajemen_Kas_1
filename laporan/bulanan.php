@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId = getUserId();
@@ -40,7 +40,7 @@ function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
     <title>Laporan Bulanan</title>
 </head>
 <body>
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <div class="main">
         <h1>Laporan Bulanan</h1>
 
@@ -62,7 +62,7 @@ function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
         </div>
 
         <div class="table-card" style="padding:20px">
-            <div class="section-title" style="margin-bottom:14px">Detail Transaksi — <?= date('F Y', strtotime("$tahun-$bln-01")) ?></div>
+            <div class="section-title" style="margin-bottom:14px">Detail Transaksi â€” <?= date('F Y', strtotime("$tahun-$bln-01")) ?></div>
             <table>
                 <thead><tr><th>#</th><th>Tanggal</th><th>Keterangan</th><th>Akun</th><th>Tipe</th><th>Jumlah</th></tr></thead>
                 <tbody>

@@ -1,6 +1,6 @@
 <?php
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId   = getUserId();
@@ -42,12 +42,12 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
 </head>
 
 <body>
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <div class="main">
         <div class="topbar">
             <div class="welcome">
                 <h1><?= $namaUmkm ?></h1>
-                <p>Halo, <?= htmlspecialchars($namaUser) ?> — Selamat datang kembali!</p>
+                <p>Halo, <?= htmlspecialchars($namaUser) ?> â€” Selamat datang kembali!</p>
             </div>
             <div class="topbar-date"><?= date('d F Y') ?></div>
         </div>
@@ -79,7 +79,7 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
             <div class="table-card">
                 <div class="table-card-header">
                     <h2>Aktivitas Terbaru</h2>
-                    <a href="../laporan/harian.php">Lihat semua →</a>
+                    <a href="../laporan/harian.php">Lihat semua â†’</a>
                 </div>
                 <table>
                     <thead>
@@ -117,16 +117,16 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
                     <h2>Quick Action</h2>
                     <div class="quick-btns">
                         <a href="../transaksi/pemasukan.php" class="q-btn green"><span>+</span>Pemasukan</a>
-                        <a href="../transaksi/pengeluaran.php" class="q-btn red"><span>−</span>Pengeluaran</a>
-                        <a href="../transaksi/transfer.php" class="q-btn purple"><span>⇄</span>Transfer</a>
-                        <a href="../laporan/harian.php" class="q-btn blue"><span>≡</span>Laporan</a>
+                        <a href="../transaksi/pengeluaran.php" class="q-btn red"><span>âˆ’</span>Pengeluaran</a>
+                        <a href="../transaksi/transfer.php" class="q-btn purple"><span>â‡„</span>Transfer</a>
+                        <a href="../laporan/harian.php" class="q-btn blue"><span>â‰¡</span>Laporan</a>
                     </div>
                 </div>
 
                 <div class="akun-card">
                     <div class="akun-card-header">
                         <h2>Akun Keuangan</h2>
-                        <a href="../data/akuntf.php">Kelola →</a>
+                        <a href="../data/akuntf.php">Kelola â†’</a>
                     </div>
                     <div class="akun-list">
                         <?php if (count($akunList) > 0): foreach ($akunList as $akun):

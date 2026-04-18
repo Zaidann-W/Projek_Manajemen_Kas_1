@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId = getUserId();
@@ -35,7 +35,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
     <title>Monitoring Budget</title>
 </head>
 <body>
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <div class="main">
         <div class="page-header">
             <h1>Monitoring Budget</h1>
@@ -74,7 +74,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
 
         <div class="table-card">
             <div class="table-header">
-                <h2>Realisasi — <?= $namaBulan[$filterBulan] ?> <?= $filterTahun ?></h2>
+                <h2>Realisasi â€” <?= $namaBulan[$filterBulan] ?> <?= $filterTahun ?></h2>
             </div>
             <table>
                 <thead><tr><th>Kategori</th><th>Budget</th><th>Terpakai</th><th>Sisa</th><th>Progress</th><th>Status</th></tr></thead>
@@ -104,7 +104,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
                     <tr>
                         <td colspan="6" class="empty">
                             Belum ada budget untuk bulan ini.<br>
-                            <a href="index.php" style="color:var(--amber);font-weight:600">Tambah budget →</a>
+                            <a href="index.php" style="color:var(--amber);font-weight:600">Tambah budget â†’</a>
                         </td>
                     </tr>
                     <?php endif; ?>

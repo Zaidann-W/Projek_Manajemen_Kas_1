@@ -1,6 +1,6 @@
 <?php
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId = getUserId();

@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId = getUserId();
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Tambah Pengeluaran</title>
 </head>
 <body>
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <div class="main">
         <div class="page-header">
             <h1>Tambah Pengeluaran</h1>
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </option>
                             <?php endforeach; ?>
                             <?php if (count($kategoriList) === 0): ?>
-                            <option disabled>Belum ada kategori — tambah di menu Kategori</option>
+                            <option disabled>Belum ada kategori â€” tambah di menu Kategori</option>
                             <?php endif; ?>
                         </select>
                     </div>
