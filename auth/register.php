@@ -2,7 +2,7 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include '../config/config.php';
+include __DIR__ . '/../config/config.php';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nama = trim($_POST['nama'] ?? '');

@@ -2,7 +2,7 @@
 // =============================================
 //   AUTH SERVICE
 //   Kumpulan fungsi untuk autentikasi user
-//   Cara pakai: include '../services/authservice.php';
+//   Cara pakai: include __DIR__ . '/../services/authservice.php';
 // =============================================
 
 /**

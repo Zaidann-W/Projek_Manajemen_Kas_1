@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include '../services/authservice.php';
-include '../config/config.php';
+include __DIR__ . '/../services/authservice.php';
+include __DIR__ . '/../config/config.php';
 requireLogin();
 
 $userId = getUserId();
@@ -40,7 +40,7 @@ function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
     <title>Laporan Bulanan</title>
 </head>
 <body>
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
     <div class="main">
         <h1>Laporan Bulanan</h1>
 
