@@ -1,13 +1,9 @@
 <?php
-session_start();
+include '../services/authservice.php';
 include '../config/config.php';
+requireLogin();
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
-    exit;
-}
-
-$userId = $_SESSION['user_id'];
+$userId = getUserId();
 $bulan  = isset($_GET['bulan']) ? $_GET['bulan'] : date('Y-m');
 $parts  = explode('-', $bulan);
 $tahun  = $parts[0];

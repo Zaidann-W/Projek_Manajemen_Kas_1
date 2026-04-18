@@ -1,282 +1,128 @@
 <?php
-session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+include '../services/authservice.php';
 include '../config/config.php';
+requireLogin();
 
-if (!isset($_SESSION['user_id'])) {
-    header("location: ../auth/login.php");
-    exit;
-}
-
-$userId = $_SESSION['user_id'];
+$userId = getUserId();
 $error = '';
 $editData = null;
 
-// delete data
 if (isset($_GET['delete'])) {
     $id = (int) $_GET['delete'];
-
-    $stmt = $conn->prepare("DELETE FROM akun_tf WHERE id = ? AND user_id = ?");
-    $stmt->execute([$id, $userId]);
-
+    $conn->prepare("DELETE FROM akun_tf WHERE id = ? AND user_id = ?")->execute([$id, $userId]);
     $_SESSION['success'] = "Akun berhasil dihapus";
-    header("Location: akuntf.php");
-    exit;
+    header("Location: akuntf.php"); exit;
 }
 
-/* ================= LOAD EDIT ================= */
 if (isset($_GET['edit'])) {
     $id = (int) $_GET['edit'];
-
     $stmt = $conn->prepare("SELECT * FROM akun_tf WHERE id = ? AND user_id = ?");
     $stmt->execute([$id, $userId]);
     $editData = $stmt->fetch();
 }
 
-// insert dan update
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
     $namaAkun  = trim($_POST['akun'] ?? '');
     $jenisAkun = $_POST['jenis'] ?? '';
     $saldoAwal = $_POST['saldo_awal'];
 
     if (empty($namaAkun) || empty($jenisAkun)) {
-        $error = "SILAHKAN ISI TERLEBIH DAHULU";
+        $error = "Semua field wajib diisi!";
     } else {
-
         if (isset($_POST['id']) && $_POST['id'] != '') {
-            // UPDATE
-            $stmt = $conn->prepare("
-                UPDATE akun_tf 
-                SET nama_akun=?, jenis_akun=?, saldo_awal=? 
-                WHERE id=? AND user_id=?
-            ");
-            $stmt->execute([
-                $namaAkun,
-                $jenisAkun,
-                $saldoAwal,
-                $_POST['id'],
-                $userId
-            ]);
-
+            $conn->prepare("UPDATE akun_tf SET nama_akun=?, jenis_akun=?, saldo_awal=? WHERE id=? AND user_id=?")
+                 ->execute([$namaAkun, $jenisAkun, $saldoAwal, $_POST['id'], $userId]);
             $_SESSION['success'] = "Akun berhasil diperbarui";
         } else {
-            // INSERT
-            $stmt = $conn->prepare("
-                INSERT INTO akun_tf (user_id, nama_akun, jenis_akun, saldo_awal) 
-                VALUES (?, ?, ?, ?)
-            ");
-            $stmt->execute([
-                $userId,
-                $namaAkun,
-                $jenisAkun,
-                $saldoAwal
-            ]);
-
+            $conn->prepare("INSERT INTO akun_tf (user_id, nama_akun, jenis_akun, saldo_awal) VALUES (?, ?, ?, ?)")
+                 ->execute([$userId, $namaAkun, $jenisAkun, $saldoAwal]);
             $_SESSION['success'] = "Akun berhasil ditambahkan";
         }
-
-        header("Location: akuntf.php");
-        exit;
+        header("Location: akuntf.php"); exit;
     }
 }
 
-// tampilkan data yang di insert
-$show = $conn->prepare("SELECT * FROM akun_tf WHERE user_id = ? ORDER BY id DESC");
-$show->execute([$userId]);
-$akunList = $show->fetchAll();
+$stmtAkun = $conn->prepare("SELECT * FROM akun_tf WHERE user_id = ? ORDER BY nama_akun ASC");
+$stmtAkun->execute([$userId]);
+$akunList = $stmtAkun->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
-    <title>Master Akun</title>
-
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Segoe UI
-    }
-
-    body {
-        background: #f4f6fb;
-        display: flex
-    }
-
-    .main {
-        flex: 1;
-        padding: 30px
-    }
-
-    h1 {
-        margin-bottom: 20px
-    }
-
-    .card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, .05);
-        margin-bottom: 25px;
-    }
-
-    input,
-    select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        margin-bottom: 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
-
-    button {
-        background: #2563eb;
-        color: #fff;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        opacity: .9
-    }
-
-    .success {
-        background: #dcfce7;
-        color: #166534;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-
-    .error {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px
-    }
-
-    th,
-    td {
-        padding: 12px;
-        border-bottom: 1px solid #eee
-    }
-
-    th {
-        text-align: left;
-        color: #666
-    }
-
-    .action-btn {
-        padding: 6px 10px;
-        border-radius: 6px;
-        text-decoration: none;
-        color: #fff;
-        font-size: 12px;
-    }
-
-    .edit {
-        background: #16a34a
-    }
-
-    .delete {
-        background: #dc2626
-    }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akun Keuangan</title>
 </head>
-
 <body>
-
     <?php include '../includes/sidebar.php'; ?>
-
     <div class="main">
         <h1>Akun Keuangan</h1>
 
-        <div class="card">
-            <h2><?= $editData ? 'Edit Akun' : 'Tambah Akun Baru' ?></h2>
+        <?php if(isset($_SESSION['success'])): ?>
+        <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
+        <?php unset($_SESSION['success']); endif; ?>
+        <?php if($error): ?>
+        <div class="alert alert-error"><?= $error ?></div>
+        <?php endif; ?>
 
-            <?php if(isset($_SESSION['success'])): ?>
-            <div class="success"><?= $_SESSION['success'] ?></div>
-            <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
+        <div class="form-wrapper">
+            <div class="card">
+                <div class="card-title"><?= $editData ? 'Edit Akun' : 'Tambah Akun Baru' ?></div>
+                <form method="POST">
+                    <?php if($editData): ?>
+                    <input type="hidden" name="id" value="<?= $editData['id'] ?>">
+                    <?php endif; ?>
 
-            <?php if($error): ?>
-            <div class="error"><?= $error ?></div>
-            <?php endif; ?>
+                    <div class="form-group">
+                        <label>Nama Rekening</label>
+                        <input type="text" name="akun" value="<?= $editData ? htmlspecialchars($editData['nama_akun']) : '' ?>" placeholder="Contoh: BCA, Kas Toko">
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Rekening</label>
+                        <select name="jenis">
+                            <option value="">-- Pilih Tipe --</option>
+                            <?php foreach(['kas','bank','wallet','kredit'] as $j):
+                                $selected = ($editData && $editData['jenis_akun'] == $j) ? 'selected' : ''; ?>
+                            <option value="<?= $j ?>" <?= $selected ?>><?= ucfirst($j) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Saldo Awal</label>
+                        <input type="number" name="saldo_awal" value="<?= $editData ? $editData['saldo_awal'] : 0 ?>">
+                    </div>
 
-            <form method="POST">
-                <?php if($editData): ?>
-                <input type="hidden" name="id" value="<?= $editData['id'] ?>">
-                <?php endif; ?>
-
-                <label>Nama Rekening</label>
-                <input type="text" name="akun" value="<?= $editData ? htmlspecialchars($editData['nama_akun']) : '' ?>"
-                    placeholder="Contoh: BCA, Kas Toko">
-
-                <label>Jenis Rekening</label>
-                <select name="jenis">
-                    <option value="">-- Pilih Tipe --</option>
-                    <?php
-                $jenisList = ['kas','bank','wallet','kredit'];
-                foreach($jenisList as $j):
-                    $selected = ($editData && $editData['jenis_akun'] == $j) ? 'selected' : '';
-                ?>
-                    <option value="<?= $j ?>" <?= $selected ?>>
-                        <?= ucfirst($j) ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-
-                <label>Saldo Awal</label>
-                <input type="number" name="saldo_awal" value="<?= $editData ? $editData['saldo_awal'] : 0 ?>">
-
-                <button type="submit">
-                    <?= $editData ? 'Update Akun' : 'Simpan Akun' ?>
-                </button>
-            </form>
+                    <button type="submit" class="btn-submit"><?= $editData ? 'Update Akun' : 'Simpan Akun' ?></button>
+                    <?php if ($editData): ?>
+                    <a href="akuntf.php" class="cancel-link">Batal</a>
+                    <?php endif; ?>
+                </form>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Daftar Akun</h2>
+        <div class="table-card">
+            <div class="table-header"><h2>Daftar Akun</h2><span class="result-count"><?= count($akunList) ?> akun</span></div>
             <table>
-                <tr>
-                    <th>Nama Akun</th>
-                    <th>Tipe</th>
-                    <th>Saldo</th>
-                    <th>Aksi</th>
-                </tr>
-
-                <?php foreach($akunList as $akun): ?>
-                <tr>
-                    <td><?= htmlspecialchars($akun['nama_akun']) ?></td>
-                    <td><?= strtoupper($akun['jenis_akun']) ?></td>
-                    <td>Rp <?= number_format($akun['saldo_awal'],0,',','.') ?></td>
-                    <td>
-                        <a href="?edit=<?= $akun['id'] ?>" class="action-btn edit">Edit</a>
-                        <a href="?delete=<?= $akun['id'] ?>" onclick="return confirm('Yakin hapus akun ini?')"
-                            class="action-btn delete">Delete</a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
+                <thead><tr><th>Nama Akun</th><th>Tipe</th><th>Saldo</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    <?php if (count($akunList) > 0): foreach($akunList as $akun): ?>
+                    <tr>
+                        <td style="font-weight:600"><?= htmlspecialchars($akun['nama_akun']) ?></td>
+                        <td><?= strtoupper($akun['jenis_akun']) ?></td>
+                        <td style="font-weight:700;color:var(--accent)">Rp <?= number_format($akun['saldo_awal'],0,',','.') ?></td>
+                        <td>
+                            <a href="?edit=<?= $akun['id'] ?>" class="action-btn btn-edit">Edit</a>
+                            <a href="?delete=<?= $akun['id'] ?>" onclick="return confirm('Yakin hapus akun ini?')" class="action-btn btn-delete">Hapus</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; else: ?>
+                    <tr><td colspan="4" class="empty">Belum ada akun</td></tr>
+                    <?php endif; ?>
+                </tbody>
             </table>
         </div>
-
     </div>
-
 </body>
-
 </html>
