@@ -1,0 +1,10 @@
+{
+    "name": "smartkas",
+    "version": "1.0.0",
+    "description": "SmartKas - Sistem Manajemen Keuangan UMKM",
+    "private": true,
+    "scripts": {
+        "dev": "php -S localhost:8080",
+        "vercel-build": "echo 'Build complete'"
+    }
+}
