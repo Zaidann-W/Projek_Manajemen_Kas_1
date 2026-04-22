@@ -47,7 +47,7 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
         <div class="topbar">
             <div class="welcome">
                 <h1><?= $namaUmkm ?></h1>
-                <p>Halo, <?= htmlspecialchars($namaUser) ?> â€” Selamat datang kembali!</p>
+                <p>Halo, <?= htmlspecialchars($namaUser) ?> - Selamat datang kembali!</p>
             </div>
             <div class="topbar-date"><?= date('d F Y') ?></div>
         </div>
@@ -79,7 +79,7 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
             <div class="table-card">
                 <div class="table-card-header">
                     <h2>Aktivitas Terbaru</h2>
-                    <a href="../laporan/harian.php">Lihat semua â†’</a>
+                    <a href="../laporan/harian.php">Lihat semua &rarr;</a>
                 </div>
                 <table>
                     <thead>
@@ -117,16 +117,16 @@ $jenisIcon = ['kas'=>'K','bank'=>'B','wallet'=>'W','kredit'=>'C'];
                     <h2>Quick Action</h2>
                     <div class="quick-btns">
                         <a href="../transaksi/pemasukan.php" class="q-btn green"><span>+</span>Pemasukan</a>
-                        <a href="../transaksi/pengeluaran.php" class="q-btn red"><span>âˆ’</span>Pengeluaran</a>
-                        <a href="../transaksi/transfer.php" class="q-btn purple"><span>â‡„</span>Transfer</a>
-                        <a href="../laporan/harian.php" class="q-btn blue"><span>â‰¡</span>Laporan</a>
+                        <a href="../transaksi/pengeluaran.php" class="q-btn red"><span>&minus;</span>Pengeluaran</a>
+                        <a href="../transaksi/transfer.php" class="q-btn purple"><span>&hArr;</span>Transfer</a>
+                        <a href="../laporan/harian.php" class="q-btn blue"><span>&equiv;</span>Laporan</a>
                     </div>
                 </div>
 
                 <div class="akun-card">
                     <div class="akun-card-header">
                         <h2>Akun Keuangan</h2>
-                        <a href="../data/akuntf.php">Kelola â†’</a>
+                        <a href="../data/akuntf.php">Kelola &rarr;</a>
                     </div>
                     <div class="akun-list">
                         <?php if (count($akunList) > 0): foreach ($akunList as $akun):

@@ -57,7 +57,7 @@ function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
         </div>
 
         <div class="table-card" style="padding:20px">
-            <div class="section-title" style="margin-bottom:14px">Detail Transaksi â€” <?= date('d F Y', strtotime($today)) ?></div>
+            <div class="section-title" style="margin-bottom:14px">Detail Transaksi — <?= date('d F Y', strtotime($today)) ?></div>
             <table>
                 <thead><tr><th>#</th><th>Keterangan</th><th>Akun</th><th>Tipe</th><th>Jumlah</th></tr></thead>
                 <tbody>

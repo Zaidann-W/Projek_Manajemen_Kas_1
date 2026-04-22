@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="card-title">Detail Transfer</div>
                 <div class="preview-box">
                     <div class="preview-akun" id="previewDari">Pilih akun asal</div>
-                    <div class="preview-arrow">â†’</div>
+                    <div class="preview-arrow">&rarr;</div>
                     <div class="preview-akun" id="previewKe">Pilih akun tujuan</div>
                 </div>
 

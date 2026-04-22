@@ -112,7 +112,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
                             </option>
                             <?php endforeach; ?>
                             <?php if (count($kategoriList) === 0): ?>
-                            <option disabled>Belum ada kategori pengeluaran â€” tambah di menu Kategori</option>
+                            <option disabled>Belum ada kategori pengeluaran - tambah di menu Kategori</option>
                             <?php endif; ?>
                         </select>
                     </div>

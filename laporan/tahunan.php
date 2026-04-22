@@ -64,7 +64,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
         </div>
 
         <div class="table-card" style="padding:20px">
-            <div class="section-title" style="margin-bottom:14px">Ringkasan Per Bulan â€” Tahun <?= $tahun ?></div>
+            <div class="section-title" style="margin-bottom:14px">Ringkasan Per Bulan - Tahun <?= $tahun ?></div>
             <table>
                 <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Selisih</th></tr></thead>
                 <tbody>
