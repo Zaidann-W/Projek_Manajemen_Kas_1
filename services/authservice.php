@@ -1,14 +1,4 @@
 <?php
-// =============================================
-//   AUTH SERVICE
-//   Kumpulan fungsi untuk autentikasi user
-//   Cara pakai: include '../services/authservice.php';
-// =============================================
-
-/**
- * Cek apakah user sudah login
- * Kalau belum, redirect ke login
- */
 function requireLogin() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -19,23 +9,50 @@ function requireLogin() {
     }
 }
 
-/**
- * Ambil user_id dari session
- */
+
 function getUserId() {
     return $_SESSION['user_id'] ?? null;
 }
 
-/**
- * Ambil nama user dari session
- */
 function getUserName() {
     return $_SESSION['user_name'] ?? 'User';
 }
 
-/**
- * Cek apakah user sudah login (return true/false)
- */
+function getUserRole() {
+    return $_SESSION['user_role'] ?? 'karyawan';
+}
+function isAdmin() {
+    return getUserRole() === 'admin';
+}
+
+function getOwnerUserId() {
+    if (isAdmin()) {
+        return getUserId();
+    }
+
+    global $conn;
+    $stmt = $conn->prepare("SELECT admin_id FROM user WHERE user_id = ?");
+    $stmt->execute([getUserId()]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['admin_id'] ?? getUserId();
+}
+
+function getBusinessUserIds() {
+    global $conn;
+    $ownerId = getOwnerUserId();
+    // Ambil owner + semua karyawan di bawah owner
+    $stmt = $conn->prepare("SELECT user_id FROM user WHERE user_id = ? OR admin_id = ?");
+    $stmt->execute([$ownerId, $ownerId]);
+    return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'user_id');
+}
+
+
+function buildInClause($ids) {
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    return ['placeholders' => $placeholders, 'values' => $ids];
+}
+
+
 function isLoggedIn() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -43,10 +60,16 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
-/**
- * Login user — cek email & password, buat session
- * Return: 'success' | 'email_not_found' | 'wrong_password' | 'error'
- */
+
+function requireAdmin() {
+    if (!isAdmin()) {
+        $_SESSION['error'] = 'Anda tidak memiliki akses ke halaman ini.';
+        header("Location: ../dashboard/index.php");
+        exit;
+    }
+}
+
+
 function loginUser($conn, $email, $password) {
     try {
         $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
@@ -64,6 +87,7 @@ function loginUser($conn, $email, $password) {
         // Buat session
         $_SESSION['user_id']   = $user['user_id'];
         $_SESSION['user_name'] = $user['nama'];
+        $_SESSION['user_role'] = $user['role'];
 
         return 'success';
     } catch (Exception $e) {
@@ -71,10 +95,6 @@ function loginUser($conn, $email, $password) {
     }
 }
 
-/**
- * Register user baru
- * Return: 'success' | 'email_exists' | 'error'
- */
 function registerUser($conn, $nama, $email, $password) {
     try {
         // Cek email sudah ada belum
@@ -84,8 +104,8 @@ function registerUser($conn, $nama, $email, $password) {
             return 'email_exists';
         }
 
-        // Insert user baru
-        $stmt = $conn->prepare("INSERT INTO user (nama, email, password) VALUES (?, ?, ?)");
+        // Insert user baru — pemilik UMKM = admin
+        $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role) VALUES (?, ?, ?, 'admin')");
         $stmt->execute([$nama, $email, $password]);
 
         return 'success';
@@ -94,9 +114,7 @@ function registerUser($conn, $nama, $email, $password) {
     }
 }
 
-/**
- * Logout user — hapus session
- */
+
 function logoutUser() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -107,10 +125,7 @@ function logoutUser() {
     exit;
 }
 
-/**
- * Ganti password user
- * Return: 'success' | 'wrong_old_password' | 'error'
- */
+
 function gantiPassword($conn, $userId, $passwordLama, $passwordBaru) {
     try {
         $stmt = $conn->prepare("SELECT password FROM user WHERE user_id = ?");

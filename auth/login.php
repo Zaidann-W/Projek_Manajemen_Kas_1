@@ -21,6 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         if($user && $pw === $user['password']) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['user_name'] = $user['nama'];
+            $_SESSION['user_role'] = $user['role'];
             header("Location: ../dashboard/index.php"); exit;
         } else {
             if(!$user) {

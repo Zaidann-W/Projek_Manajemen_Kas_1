@@ -1,7 +1,3 @@
-// ============================================
-//   SMARTKAS — THEME TOGGLE (pill switch)
-// ============================================
-
 (function() {
     const STORAGE_KEY = 'smartkas-theme';
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -12,7 +8,6 @@
         const checkbox = document.getElementById('themeCheckbox');
         if (!checkbox) return;
 
-        // Light = checked, Dark = unchecked
         checkbox.checked = (theme === 'light');
 
         checkbox.addEventListener('change', function() {

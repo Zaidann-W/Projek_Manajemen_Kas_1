@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: register.php"); exit;
         }
 
-        $stmt = $conn->prepare("INSERT INTO user (nama, email, password) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role) VALUES (?, ?, ?, 'admin')");
         $stmt->execute([$nama, $email, $pw]);
 
         $_SESSION['success'] = 'Registrasi berhasil, silahkan login';

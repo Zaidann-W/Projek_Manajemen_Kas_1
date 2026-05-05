@@ -1,88 +1,68 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-include __DIR__ . '/../services/authservice.php';
-include __DIR__ . '/../config/config.php';
-requireLogin();
+if (!defined('PARTIAL_MODE')) { header('Location: index.php?tab=bulanan'); exit; }
 
 $userId = getUserId();
+$bizIds = getBusinessUserIds();
+$biz    = buildInClause($bizIds);
 $bulan  = isset($_GET['bulan']) ? $_GET['bulan'] : date('Y-m');
 $parts  = explode('-', $bulan);
 $tahun  = $parts[0];
 $bln    = $parts[1];
 
-$stmtMasuk = $conn->prepare("SELECT COALESCE(SUM(jumlah),0) AS total FROM transaksi WHERE user_id = ? AND tipe = 'pemasukan' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ?");
-$stmtMasuk->execute([$userId, $bln, $tahun]);
+$stmtMasuk = $conn->prepare("SELECT COALESCE(SUM(jumlah),0) AS total FROM transaksi WHERE user_id IN ({$biz['placeholders']}) AND tipe = 'pemasukan' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ?");
+$stmtMasuk->execute(array_merge($biz['values'], [$bln, $tahun]));
 $totalMasuk = $stmtMasuk->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmtKeluar = $conn->prepare("SELECT COALESCE(SUM(jumlah),0) AS total FROM transaksi WHERE user_id = ? AND tipe = 'pengeluaran' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ?");
-$stmtKeluar->execute([$userId, $bln, $tahun]);
+$stmtKeluar = $conn->prepare("SELECT COALESCE(SUM(jumlah),0) AS total FROM transaksi WHERE user_id IN ({$biz['placeholders']}) AND tipe = 'pengeluaran' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ?");
+$stmtKeluar->execute(array_merge($biz['values'], [$bln, $tahun]));
 $totalKeluar = $stmtKeluar->fetch(PDO::FETCH_ASSOC)['total'];
 
 $saldo = $totalMasuk - $totalKeluar;
 
-$stmtDetail = $conn->prepare("
-    SELECT t.*, a.nama_akun FROM transaksi t 
-    LEFT JOIN akun_tf a ON t.akuntf_id = a.id 
-    WHERE t.user_id = ? AND MONTH(t.tanggal) = ? AND YEAR(t.tanggal) = ? 
-    ORDER BY t.tanggal DESC, t.id DESC
-");
-$stmtDetail->execute([$userId, $bln, $tahun]);
+$stmtDetail = $conn->prepare("SELECT t.*, a.nama_akun FROM transaksi t LEFT JOIN akun_tf a ON t.akuntf_id = a.id WHERE t.user_id IN ({$biz['placeholders']}) AND MONTH(t.tanggal) = ? AND YEAR(t.tanggal) = ? ORDER BY t.tanggal DESC, t.id DESC");
+$stmtDetail->execute(array_merge($biz['values'], [$bln, $tahun]));
 $detail = $stmtDetail->fetchAll(PDO::FETCH_ASSOC);
 
-function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
+if (!function_exists('rp')) { function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); } }
+$namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Bulanan</title>
-</head>
-<body>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
-    <div class="main">
-        <h1>Laporan Bulanan</h1>
 
-        <div class="filter-card">
-            <form method="GET" class="filter-form">
-                <div class="filter-group">
-                    <label>Bulan</label>
-                    <input type="month" name="bulan" value="<?= $bulan ?>">
-                </div>
-                <button type="submit" class="btn-filter">Lihat</button>
-                <a href="export.php?bulan=<?= $bulan ?>" class="btn-filter" style="background:var(--green);text-decoration:none;text-align:center">Export CSV</a>
-            </form>
+<div class="filter-card">
+    <form method="GET" class="filter-form">
+        <input type="hidden" name="tab" value="bulanan">
+        <div class="filter-group">
+            <label>Pilih Bulan</label>
+            <input type="month" name="bulan" value="<?= $bulan ?>">
         </div>
+        <button type="submit" class="btn-filter">Tampilkan</button>
+    </form>
+</div>
 
-        <div class="cards">
-            <div class="card c-green"><h3>Total Pemasukan</h3><div class="value green"><?= rp($totalMasuk) ?></div></div>
-            <div class="card c-red"><h3>Total Pengeluaran</h3><div class="value red"><?= rp($totalKeluar) ?></div></div>
-            <div class="card <?= $saldo >= 0 ? 'c-blue' : 'c-red' ?>"><h3>Saldo Bulan Ini</h3><div class="value <?= $saldo >= 0 ? 'blue' : 'red' ?>"><?= rp(abs($saldo)) ?></div></div>
-        </div>
+<div class="summary-cards">
+    <div class="summary-card green"><div class="label">Pemasukan</div><div class="value"><?= rp($totalMasuk) ?></div></div>
+    <div class="summary-card red"><div class="label">Pengeluaran</div><div class="value"><?= rp($totalKeluar) ?></div></div>
+    <div class="summary-card <?= $saldo >= 0 ? 'green' : 'red' ?>"><div class="label">Saldo</div><div class="value"><?= rp(abs($saldo)) ?></div></div>
+</div>
 
-        <div class="table-card" style="padding:20px">
-            <div class="section-title" style="margin-bottom:14px">Detail Transaksi — <?= date('F Y', strtotime("$tahun-$bln-01")) ?></div>
-            <table>
-                <thead><tr><th>#</th><th>Tanggal</th><th>Keterangan</th><th>Akun</th><th>Tipe</th><th>Jumlah</th></tr></thead>
-                <tbody>
-                    <?php if (count($detail) > 0): $no = 1; foreach ($detail as $row): ?>
-                    <tr>
-                        <td><?= $no++ ?></td>
-                        <td><?= date('d M Y', strtotime($row['tanggal'])) ?></td>
-                        <td><?= htmlspecialchars($row['keterangan']) ?></td>
-                        <td><?= htmlspecialchars($row['nama_akun'] ?? '-') ?></td>
-                        <td><span class="badge <?= $row['tipe'] ?>"><?= $row['tipe'] ?></span></td>
-                        <td class="<?= $row['tipe']==='pemasukan'?'green':($row['tipe']==='pengeluaran'?'red':'') ?>" style="font-weight:600">
-                            <?= ($row['tipe']==='pemasukan' ? '+' : ($row['tipe']==='pengeluaran' ? '-' : '')) . rp($row['jumlah']) ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; else: ?>
-                    <tr><td colspan="6" class="empty">Tidak ada transaksi bulan ini</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</body>
-</html>
+<div class="table-card">
+    <div class="table-header"><h2>Detail — <?= $namaBulan[(int)$bln] ?> <?= $tahun ?></h2></div>
+    <table>
+        <thead><tr><th>#</th><th>Tanggal</th><th>Tipe</th><th>Akun</th><th>Keterangan</th><th>Nominal</th></tr></thead>
+        <tbody>
+            <?php if (count($detail) > 0): $no = 1; foreach ($detail as $d): ?>
+            <tr>
+                <td><?= $no++ ?></td>
+                <td><?= date('d M', strtotime($d['tanggal'])) ?></td>
+                <td><span class="badge <?= $d['tipe'] ?>"><?= $d['tipe'] ?></span></td>
+                <td><?= htmlspecialchars($d['nama_akun'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($d['keterangan'] ?? '-') ?></td>
+                <td class="<?= $d['tipe']==='pemasukan'?'green':($d['tipe']==='pengeluaran'?'red':'') ?>" style="font-weight:700">
+                    <?= ($d['tipe']==='pemasukan'?'+':($d['tipe']==='pengeluaran'?'-':'')) . rp($d['jumlah']) ?>
+                </td>
+            </tr>
+            <?php endforeach; else: ?>
+            <tr><td colspan="6" class="empty">Tidak ada transaksi bulan ini</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>

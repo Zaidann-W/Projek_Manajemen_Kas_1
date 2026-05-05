@@ -1,13 +1,11 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-include __DIR__ . '/../services/authservice.php';
-include __DIR__ . '/../config/config.php';
-requireLogin();
+if (!defined('PARTIAL_MODE')) { header('Location: index.php?tab=riwayat'); exit; }
 
-$userId = getUserId();
+$userId  = getUserId();
+$ownerId = getOwnerUserId();
+$bizIds  = getBusinessUserIds();
+$biz     = buildInClause($bizIds);
 
-// HAPUS
 if (isset($_GET['delete'])) {
     $id = (int) $_GET['delete'];
     $stmtGet = $conn->prepare("SELECT * FROM transaksi WHERE id = ? AND user_id = ?");
@@ -19,10 +17,10 @@ if (isset($_GET['delete'])) {
         try {
             if ($tx['tipe'] === 'pemasukan') {
                 $conn->prepare("UPDATE akun_tf SET saldo_awal = saldo_awal - ? WHERE id = ? AND user_id = ?")
-                    ->execute([$tx['jumlah'], $tx['akuntf_id'], $userId]);
+                    ->execute([$tx['jumlah'], $tx['akuntf_id'], $ownerId]);
             } elseif ($tx['tipe'] === 'pengeluaran') {
                 $conn->prepare("UPDATE akun_tf SET saldo_awal = saldo_awal + ? WHERE id = ? AND user_id = ?")
-                    ->execute([$tx['jumlah'], $tx['akuntf_id'], $userId]);
+                    ->execute([$tx['jumlah'], $tx['akuntf_id'], $ownerId]);
             }
             $conn->prepare("DELETE FROM transaksi WHERE id = ? AND user_id = ?")->execute([$id, $userId]);
             $conn->commit();
@@ -32,20 +30,10 @@ if (isset($_GET['delete'])) {
             $_SESSION['error'] = "Gagal menghapus transaksi";
         }
     }
-    header("Location: riwayat.php");
+    header("Location: index.php?tab=riwayat");
     exit;
 }
 
-// EDIT - load data
-$editData = null;
-if (isset($_GET['edit'])) {
-    $id = (int) $_GET['edit'];
-    $stmtEdit = $conn->prepare("SELECT * FROM transaksi WHERE id = ? AND user_id = ?");
-    $stmtEdit->execute([$id, $userId]);
-    $editData = $stmtEdit->fetch(PDO::FETCH_ASSOC);
-}
-
-// UPDATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $id         = (int) $_POST['edit_id'];
     $keterangan = trim($_POST['keterangan'] ?? '');
@@ -55,18 +43,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
         $conn->prepare("UPDATE transaksi SET keterangan = ?, tanggal = ? WHERE id = ? AND user_id = ?")
             ->execute([$keterangan, $tanggal, $id, $userId]);
         $_SESSION['success'] = "Transaksi berhasil diperbarui";
-        header("Location: riwayat.php");
+        header("Location: index.php?tab=riwayat");
         exit;
     }
 }
 
-// FILTER & SEARCH
 $search = trim($_GET['search'] ?? '');
 $tipe   = $_GET['tipe'] ?? '';
 $bulan  = $_GET['bulan'] ?? '';
 
-$where = "WHERE t.user_id = ?";
-$params = [$userId];
+$where = "WHERE t.user_id IN ({$biz['placeholders']})";
+$params = $biz['values'];
 
 if ($search) { $where .= " AND t.keterangan LIKE ?"; $params[] = "%$search%"; }
 if ($tipe) { $where .= " AND t.tipe = ?"; $params[] = $tipe; }
@@ -80,132 +67,98 @@ $stmtTx = $conn->prepare("
 $stmtTx->execute($params);
 $txList = $stmtTx->fetchAll(PDO::FETCH_ASSOC);
 
-$stmtAkun = $conn->prepare("SELECT id, nama_akun FROM akun_tf WHERE user_id = ?");
-$stmtAkun->execute([$userId]);
-$akunList = $stmtAkun->fetchAll(PDO::FETCH_ASSOC);
-
-function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); }
+if (!function_exists('rp')) { function rp($n) { return 'Rp ' . number_format($n, 0, ',', '.'); } }
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Transaksi</title>
-</head>
-<body>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
-    <div class="main">
-        <div class="page-header">
-            <h1>Riwayat Transaksi</h1>
-            <p>Lihat, cari, edit, dan hapus transaksi kamu</p>
+
+<?php if (isset($_SESSION['success'])): ?>
+<div class="alert alert-success"><?= $_SESSION['success'] ?></div>
+<?php unset($_SESSION['success']); endif; ?>
+<?php if (isset($_SESSION['error'])): ?>
+<div class="alert alert-error"><?= $_SESSION['error'] ?></div>
+<?php unset($_SESSION['error']); endif; ?>
+
+
+<div class="filter-card">
+    <form method="GET" class="filter-form">
+        <input type="hidden" name="tab" value="riwayat">
+        <div class="filter-group">
+            <label>Cari Keterangan</label>
+            <input type="text" name="search" placeholder="Cari transaksi..." value="<?= htmlspecialchars($search) ?>">
         </div>
-
-        <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
-        <?php unset($_SESSION['success']); endif; ?>
-        <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-error"><?= $_SESSION['error'] ?></div>
-        <?php unset($_SESSION['error']); endif; ?>
-
-        <!-- FILTER -->
-        <div class="filter-card">
-            <form method="GET" class="filter-form">
-                <div class="filter-group">
-                    <label>Cari Keterangan</label>
-                    <input type="text" name="search" placeholder="Cari transaksi..." value="<?= htmlspecialchars($search) ?>">
-                </div>
-                <div class="filter-group">
-                    <label>Tipe</label>
-                    <select name="tipe">
-                        <option value="">Semua Tipe</option>
-                        <option value="pemasukan" <?= $tipe==='pemasukan'?'selected':'' ?>>Pemasukan</option>
-                        <option value="pengeluaran" <?= $tipe==='pengeluaran'?'selected':'' ?>>Pengeluaran</option>
-                        <option value="transfer" <?= $tipe==='transfer'?'selected':'' ?>>Transfer</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Bulan</label>
-                    <input type="month" name="bulan" value="<?= $bulan ?>">
-                </div>
-                <button type="submit" class="btn-filter">Cari</button>
-                <a href="riwayat.php" class="btn-reset">Reset</a>
-            </form>
+        <div class="filter-group">
+            <label>Tipe</label>
+            <select name="tipe">
+                <option value="">Semua</option>
+                <option value="pemasukan" <?= $tipe === 'pemasukan' ? 'selected' : '' ?>>Pemasukan</option>
+                <option value="pengeluaran" <?= $tipe === 'pengeluaran' ? 'selected' : '' ?>>Pengeluaran</option>
+                <option value="transfer" <?= $tipe === 'transfer' ? 'selected' : '' ?>>Transfer</option>
+            </select>
         </div>
+        <div class="filter-group">
+            <label>Bulan</label>
+            <input type="month" name="bulan" value="<?= htmlspecialchars($bulan) ?>">
+        </div>
+        <button type="submit" class="btn-filter">Filter</button>
+    </form>
+</div>
 
-        <!-- TABLE -->
-        <div class="table-card">
-            <div class="table-header">
-                <h2>Daftar Transaksi</h2>
-                <span class="result-count"><?= count($txList) ?> transaksi ditemukan</span>
-            </div>
-            <table>
-                <thead>
-                    <tr><th>Tanggal</th><th>Keterangan</th><th>Akun</th><th>Tipe</th><th>Nominal</th><th>Aksi</th></tr>
-                </thead>
-                <tbody>
-                    <?php if (count($txList) > 0): foreach ($txList as $tx): ?>
-                    <tr>
-                        <td><?= date('d M Y', strtotime($tx['tanggal'])) ?></td>
-                        <td><?= $tx['keterangan'] ? htmlspecialchars($tx['keterangan']) : '<span style="color:var(--text-muted)">-</span>' ?></td>
-                        <td><?= htmlspecialchars($tx['nama_akun'] ?? '-') ?></td>
-                        <td><span class="badge <?= $tx['tipe'] ?>"><?= $tx['tipe'] ?></span></td>
-                        <td class="<?= $tx['tipe']==='pemasukan'?'green':($tx['tipe']==='pengeluaran'?'red':'') ?>" style="font-weight:700">
-                            <?= ($tx['tipe']==='pemasukan'?'+':($tx['tipe']==='pengeluaran'?'-':'')) . rp($tx['jumlah']) ?>
-                        </td>
-                        <td>
-                            <a href="#" class="action-btn btn-edit"
-                                onclick="openEdit(<?= $tx['id'] ?>, '<?= htmlspecialchars($tx['keterangan'], ENT_QUOTES) ?>', '<?= $tx['tanggal'] ?>', '<?= $tx['tipe'] ?>', <?= $tx['jumlah'] ?>); return false;">Edit</a>
-                            <?php if ($tx['tipe'] !== 'transfer'): ?>
-                            <a href="?delete=<?= $tx['id'] ?>" class="action-btn btn-delete"
-                                onclick="return confirm('Yakin hapus? Saldo akun akan dikembalikan.')">Hapus</a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; else: ?>
-                    <tr><td colspan="6" class="empty">Tidak ada transaksi ditemukan</td></tr>
+<div class="table-card">
+    <div class="table-header"><h2>Riwayat Transaksi</h2><span class="result-count"><?= count($txList) ?> transaksi ditemukan</span></div>
+    <table>
+        <thead><tr><th>#</th><th>Tanggal</th><th>Tipe</th><th>Akun</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead>
+        <tbody>
+            <?php if (count($txList) > 0): $no = 1; foreach ($txList as $tx): ?>
+            <tr>
+                <td><?= $no++ ?></td>
+                <td><?= date('d M Y', strtotime($tx['tanggal'])) ?></td>
+                <td><span class="badge <?= $tx['tipe'] ?>"><?= $tx['tipe'] ?></span></td>
+                <td><?= htmlspecialchars($tx['nama_akun'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($tx['keterangan'] ?? '-') ?></td>
+                <td class="<?= $tx['tipe']==='pemasukan'?'green':($tx['tipe']==='pengeluaran'?'red':'') ?>" style="font-weight:700">
+                    <?= ($tx['tipe']==='pemasukan'?'+':($tx['tipe']==='pengeluaran'?'-':'')) . rp($tx['jumlah']) ?>
+                </td>
+                <td>
+                    <?php if ($tx['tipe'] !== 'transfer'): ?>
+                    <button class="action-btn btn-edit" onclick="openEdit(<?= htmlspecialchars(json_encode($tx)) ?>)">Edit</button>
+                    <a href="?tab=riwayat&delete=<?= $tx['id'] ?>" onclick="return confirm('Yakin hapus transaksi ini? Saldo akan dikembalikan.')" class="action-btn btn-delete">Hapus</a>
+                    <?php else: ?>
+                    <span style="color:var(--text-muted);font-size:12px">-</span>
                     <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                </td>
+            </tr>
+            <?php endforeach; else: ?>
+            <tr><td colspan="7" class="empty">Belum ada transaksi</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 
-    <!-- MODAL EDIT -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <h2>Edit Transaksi</h2>
-            <div class="modal-info" id="modalInfo">-</div>
-            <form method="POST">
-                <input type="hidden" name="edit_id" id="editId">
-                <div class="form-group">
-                    <label>Keterangan</label>
-                    <textarea name="keterangan" id="editKeterangan" placeholder="Keterangan transaksi"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Tanggal</label>
-                    <input type="date" name="tanggal" id="editTanggal">
-                </div>
-                <div class="modal-btns">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center">
+    <div class="card" style="max-width:500px;width:90%;margin:auto;margin-top:10vh">
+        <div class="card-title">Edit Transaksi</div>
+        <form method="POST" action="?tab=riwayat">
+            <input type="hidden" name="edit_id" id="editId">
+            <div class="form-group">
+                <label>Keterangan</label>
+                <textarea name="keterangan" id="editKeterangan" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" name="tanggal" id="editTanggal" required>
+            </div>
+            <button type="submit" class="btn-submit">Simpan Perubahan</button>
+            <button type="button" class="btn-submit red" style="margin-top:8px" onclick="closeEdit()">Batal</button>
+        </form>
     </div>
+</div>
 
-    <script>
-    function openEdit(id, keterangan, tanggal, tipe, jumlah) {
-        document.getElementById('editId').value = id;
-        document.getElementById('editKeterangan').value = keterangan;
-        document.getElementById('editTanggal').value = tanggal;
-        document.getElementById('modalInfo').textContent =
-            'Tipe: ' + tipe + ' | Nominal: Rp ' + parseInt(jumlah).toLocaleString('id-ID');
-        document.getElementById('modalOverlay').classList.add('show');
-    }
-    function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-    document.getElementById('modalOverlay').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
-    </script>
-</body>
-</html>
+<script>
+function openEdit(tx) {
+    document.getElementById('editId').value = tx.id;
+    document.getElementById('editKeterangan').value = tx.keterangan || '';
+    document.getElementById('editTanggal').value = tx.tanggal;
+    document.getElementById('editModal').style.display = 'flex';
+}
+function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
+</script>
