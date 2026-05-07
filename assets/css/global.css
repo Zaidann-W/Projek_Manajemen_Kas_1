@@ -1166,6 +1166,8 @@ td.blue, span.blue, div.blue { color: var(--accent) !important; }
     border: 1px solid var(--border);
     box-shadow: var(--shadow-card);
     padding: 20px 24px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .chart-card-header {
@@ -1173,6 +1175,7 @@ td.blue, span.blue, div.blue { color: var(--accent) !important; }
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    gap: 8px;
 }
 
 .chart-card-header h2 {
@@ -1182,6 +1185,7 @@ td.blue, span.blue, div.blue { color: var(--accent) !important; }
     margin: 0;
     padding: 0;
     border: none;
+    word-break: break-word;
 }
 
 .chart-legend {
@@ -1224,9 +1228,11 @@ td.blue, span.blue, div.blue { color: var(--accent) !important; }
 }
 
 @media (max-width: 600px) {
-    .chart-card { padding: 16px; }
+    .chart-card { padding: 14px; }
+    .chart-card-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .chart-card-header h2 { font-size: 14px; }
     .chart-wrapper { height: 180px; }
-    .chart-wrapper-donut { height: 220px; }
+    .chart-wrapper-donut { height: 240px; }
     .chart-legend { display: none; }
 }
 
@@ -1747,6 +1753,85 @@ td.blue, span.blue, div.blue { color: var(--accent) !important; }
 
     table {
         min-width: 480px;
+    }
+
+    /* Dashboard activity table: card layout on mobile */
+    .table-card.activity-table table {
+        min-width: 0;
+    }
+
+    .table-card.activity-table thead {
+        display: none;
+    }
+
+    .table-card.activity-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-light);
+        gap: 4px 0;
+        align-items: center;
+    }
+
+    .table-card.activity-table tbody tr:hover td {
+        background: transparent;
+    }
+
+    .table-card.activity-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-card.activity-table td {
+        padding: 0;
+        border-bottom: none;
+        font-size: 13px;
+    }
+
+    /* Tanggal */
+    .table-card.activity-table td:nth-child(1) {
+        font-size: 11px;
+        color: var(--text-muted);
+        width: 100%;
+        order: 1;
+        margin-bottom: 2px;
+    }
+
+    /* Keterangan */
+    .table-card.activity-table td:nth-child(2) {
+        width: 100%;
+        order: 2;
+        font-weight: 600;
+        font-size: 14px;
+        word-break: break-word;
+        margin-bottom: 6px;
+    }
+
+    /* Akun */
+    .table-card.activity-table td:nth-child(3) {
+        order: 3;
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-right: 8px;
+    }
+
+    /* Tipe badge */
+    .table-card.activity-table td:nth-child(4) {
+        order: 4;
+        margin-right: auto;
+    }
+
+    /* Nominal */
+    .table-card.activity-table td:nth-child(5) {
+        order: 5;
+        font-size: 14px;
+        margin-left: auto;
+    }
+
+    /* Empty state */
+    .table-card.activity-table td[colspan] {
+        width: 100%;
+        text-align: center;
+        padding: 30px 16px;
     }
 
     th { padding: 10px 14px; font-size: 10px; }

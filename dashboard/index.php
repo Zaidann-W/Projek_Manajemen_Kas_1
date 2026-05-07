@@ -200,7 +200,7 @@ foreach ($budgetRows as $br) {
         </div>
 
         <div class="bottom-grid">
-            <div class="table-card">
+            <div class="table-card activity-table">
                 <div class="table-card-header">
                     <h2>Aktivitas Terbaru</h2>
                     <a href="../laporan/index.php">Lihat semua &rarr;</a>
