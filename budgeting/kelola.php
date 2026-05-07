@@ -39,10 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                  ->execute([$kategoriId, $bulan, $tahun, $jumlahBudget, $_POST['id'], $userId]);
             $_SESSION['success'] = "Budget berhasil diperbarui";
         } else {
-            $cek = $conn->prepare("SELECT id FROM budget WHERE user_id = ? AND kategoricf_id = ? AND bulan = ? AND tahun = ?");
+            $cek = $conn->prepare("SELECT id, jumlah_budget FROM budget WHERE user_id = ? AND kategoricf_id = ? AND bulan = ? AND tahun = ?");
             $cek->execute([$userId, $kategoriId, $bulan, $tahun]);
-            if ($cek->fetch()) {
-                $error = "Budget untuk kategori dan bulan ini sudah ada! Silakan edit yang sudah ada.";
+            $existing = $cek->fetch();
+            if ($existing) {
+                // Sudah ada → tambahkan nominal ke budget yang existing
+                $budgetBaru = $existing['jumlah_budget'] + $jumlahBudget;
+                $conn->prepare("UPDATE budget SET jumlah_budget = ? WHERE id = ? AND user_id = ?")
+                     ->execute([$budgetBaru, $existing['id'], $userId]);
+                $_SESSION['success'] = "Budget berhasil ditambah! Total budget sekarang: Rp " . number_format($budgetBaru, 0, ',', '.');
             } else {
                 $conn->prepare("INSERT INTO budget (user_id, kategoricf_id, bulan, tahun, jumlah_budget) VALUES (?, ?, ?, ?, ?)")
                      ->execute([$userId, $kategoriId, $bulan, $tahun, $jumlahBudget]);
@@ -112,10 +117,12 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
                 <label>Jumlah Budget (Rp)</label>
                 <input type="number" name="jumlah_budget" placeholder="Masukkan nominal budget" min="1" value="<?= $editData ? $editData['jumlah_budget'] : '' ?>" required>
             </div>
-            <button type="submit" class="btn-submit amber"><?= $editData ? 'Update Budget' : 'Simpan Budget' ?></button>
-            <?php if ($editData): ?>
-            <a href="?tab=kelola" class="cancel-link">Batal</a>
-            <?php endif; ?>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn-submit amber" style="width:auto;flex:1"><?= $editData ? 'Update Budget' : 'Simpan Budget' ?></button>
+                <?php if ($editData): ?>
+                <a href="?tab=kelola" class="btn-submit" style="width:auto;flex:0 0 100px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-align:center;text-decoration:none">Batal</a>
+                <?php endif; ?>
+            </div>
         </form>
     </div>
 </div>

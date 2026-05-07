@@ -76,13 +76,15 @@ $kategoriList = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <input type="hidden" name="kategori" id="tipeInput"
                     value="<?= $editData ? $editData['kategori'] : 'masuk' ?>">
             </div>
-            <button type="submit" class="btn-submit"><?= $editData ? 'Update Kategori' : 'Simpan Kategori' ?></button>
-            <?php if ($editData): ?>
-            <a href="?tab=kategori" class="cancel-link">Batal</a>
-            <?php endif; ?>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn-submit" style="width:auto;flex:1"><?= $editData ? 'Update Kategori' : 'Simpan Kategori' ?></button>
+                <?php if ($editData): ?>
+                <a href="?tab=kategori" class="btn-submit" style="width:auto;flex:0 0 100px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-align:center;text-decoration:none">Batal</a>
+                <?php endif; ?>
+            </div>
         </form>
     </div>
-</div>
+</div> 
 
 <div class="table-card">
     <div class="table-header"><h2>Daftar Kategori</h2><span class="result-count"><?= count($kategoriList) ?> kategori</span></div>

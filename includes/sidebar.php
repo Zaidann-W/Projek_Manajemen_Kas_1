@@ -43,9 +43,11 @@ $base = '../';
         Budgeting
     </a>
 
+    <?php if (isAdmin()): ?>
     <a href="<?= $base ?>data/user.php" class="<?= $currentFile === 'user.php' ? 'active' : '' ?>">
         Pengaturan
     </a>
+    <?php endif; ?>
 
     <div class="sidebar-footer">
         <div class="sidebar-user-info">

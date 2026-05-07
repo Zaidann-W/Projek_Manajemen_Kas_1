@@ -8,6 +8,7 @@ requireLogin();
 
 $activeTab = $_GET['tab'] ?? 'pemasukan';
 if (!in_array($activeTab, ['pemasukan','pengeluaran','transfer','riwayat'])) $activeTab = 'pemasukan';
+if ($activeTab === 'riwayat' && !isAdmin()) { header('Location: index.php?tab=pemasukan'); exit; }
 
 ob_start();
 include __DIR__ . "/$activeTab.php";
@@ -31,7 +32,9 @@ $tabContent = ob_get_clean();
             <a href="?tab=pemasukan" class="tab-btn <?= $activeTab === 'pemasukan' ? 'active green-tab' : '' ?>">Pemasukan</a>
             <a href="?tab=pengeluaran" class="tab-btn <?= $activeTab === 'pengeluaran' ? 'active red-tab' : '' ?>">Pengeluaran</a>
             <a href="?tab=transfer" class="tab-btn <?= $activeTab === 'transfer' ? 'active purple-tab' : '' ?>">Transfer</a>
+            <?php if (isAdmin()): ?>
             <a href="?tab=riwayat" class="tab-btn <?= $activeTab === 'riwayat' ? 'active blue-tab' : '' ?>">Riwayat</a>
+            <?php endif; ?>
         </div>
 
         <div class="tab-content">

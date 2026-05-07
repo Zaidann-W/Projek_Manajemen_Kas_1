@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 include __DIR__ . '/../services/authservice.php';
 include __DIR__ . '/../config/config.php';
 requireLogin();
+requireAdmin();
 
 $userId = getUserId();
 $error  = '';

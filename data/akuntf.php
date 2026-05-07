@@ -77,10 +77,12 @@ $akunList = $stmtAkun->fetchAll(PDO::FETCH_ASSOC);
                 <label>Saldo Awal</label>
                 <input type="number" name="saldo_awal" value="<?= $editData ? $editData['saldo_awal'] : 0 ?>">
             </div>
-            <button type="submit" class="btn-submit"><?= $editData ? 'Update Akun' : 'Simpan Akun' ?></button>
-            <?php if ($editData): ?>
-            <a href="?tab=akun" class="cancel-link">Batal</a>
-            <?php endif; ?>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn-submit" style="width:auto;flex:1"><?= $editData ? 'Update Akun' : 'Simpan Akun' ?></button>
+                <?php if ($editData): ?>
+                <a href="?tab=akun" class="btn-submit" style="width:auto;flex:0 0 100px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);text-align:center;text-decoration:none">Batal</a>
+                <?php endif; ?>
+            </div>
         </form>
     </div>
 </div>
