@@ -5,30 +5,8 @@ $userId = getOwnerUserId();
 $error  = '';
 $editData = null;
 
-// === Daftar kategori default UMKM (sama dengan di register.php) ===
-$defaultKategori = [
-    ['masuk',  'Penjualan Produk'],
-    ['masuk',  'Penjualan Makanan'],
-    ['masuk',  'Penjualan Minuman'],
-    ['masuk',  'Pesanan Online'],
-    ['masuk',  'Pesanan Catering'],
-    ['masuk',  'Jasa Layanan'],
-    ['masuk',  'Modal Masuk'],
-    ['masuk',  'Komisi / Bonus'],
-    ['masuk',  'Pendapatan Lain-lain'],
-    ['keluar', 'Belanja Bahan Baku'],
-    ['keluar', 'Gaji Karyawan'],
-    ['keluar', 'Listrik'],
-    ['keluar', 'Air'],
-    ['keluar', 'Gas LPG'],
-    ['keluar', 'Sewa Tempat'],
-    ['keluar', 'Biaya Kemasan'],
-    ['keluar', 'Biaya Transportasi'],
-    ['keluar', 'Biaya Pemasaran / Iklan'],
-    ['keluar', 'Perawatan Peralatan'],
-    ['keluar', 'Perlengkapan'],
-    ['keluar', 'Biaya tak terduga'],
-];
+// === Daftar kategori default UMKM — edit di: config/default_kategori.php ===
+include __DIR__ . '/../config/default_kategori.php';
 
 if (isset($_GET['delete'])) {
     $id = (int) $_GET['delete'];

@@ -27,31 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         $newUserId = $conn->lastInsertId();
 
         // === Insert kategori default UMKM ===
-        $defaultKategori = [
-            // Pemasukan
-            ['masuk', 'Penjualan Produk'],
-            ['masuk', 'Penjualan Makanan'],
-            ['masuk', 'Penjualan Minuman'],
-            ['masuk', 'Pesanan Online'],
-            ['masuk', 'Pesanan Catering'],
-            ['masuk', 'Jasa Layanan'],
-            ['masuk', 'Modal Masuk'],
-            ['masuk', 'Komisi / Bonus'],
-            ['masuk', 'Pendapatan Lain-lain'],
-            // Pengeluaran
-            ['keluar', 'Belanja Bahan Baku'],
-            ['keluar', 'Gaji Karyawan'],
-            ['keluar', 'Listrik'],
-            ['keluar', 'Air'],
-            ['keluar', 'Gas LPG'],
-            ['keluar', 'Sewa Tempat'],
-            ['keluar', 'Biaya Kemasan'],
-            ['keluar', 'Biaya Transportasi'],
-            ['keluar', 'Biaya Pemasaran / Iklan'],
-            ['keluar', 'Perawatan Peralatan'],
-            ['keluar', 'Perlengkapan'],
-            ['keluar', 'Biaya tak terduga'],
-        ];
+        include __DIR__ . '/../config/default_kategori.php'; // edit daftar di file itu
         $stmtKat = $conn->prepare("INSERT INTO kategori_cashflow (user_id, kategori, nama_kategori) VALUES (?, ?, ?)");
         foreach ($defaultKategori as $k) {
             $stmtKat->execute([$newUserId, $k[0], $k[1]]);
