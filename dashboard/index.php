@@ -300,7 +300,7 @@ foreach ($budgetRows as $br) {
                         tension: 0.4,
                         pointRadius: 4,
                         pointBackgroundColor: '#34d399',
-                        pointBorderColor: isDark ? '#0f1f3a' : '#faf8ff',
+                        pointBorderColor: isDark ? '#0f1f3a' : '#f5f2ec',
                         pointBorderWidth: 2,
                         pointHoverRadius: 6
                     },
@@ -314,7 +314,7 @@ foreach ($budgetRows as $br) {
                         tension: 0.4,
                         pointRadius: 4,
                         pointBackgroundColor: '#f87171',
-                        pointBorderColor: isDark ? '#0f1f3a' : '#faf8ff',
+                        pointBorderColor: isDark ? '#0f1f3a' : '#f5f2ec',
                         pointBorderWidth: 2,
                         pointHoverRadius: 6
                     }
@@ -327,10 +327,10 @@ foreach ($budgetRows as $br) {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: isDark ? '#1a2d50' : '#faf8ff',
-                        titleColor: isDark ? '#f0f4fb' : '#1a1230',
-                        bodyColor: isDark ? '#e2e8f4' : '#2d2545',
-                        borderColor: isDark ? '#1a2d50' : '#e0dced',
+                        backgroundColor: isDark ? '#1a2d50' : '#f5f2ec',
+                        titleColor: isDark ? '#f0f4fb' : '#1a1815',
+                        bodyColor: isDark ? '#e2e8f4' : '#2c2a25',
+                        borderColor: isDark ? '#1a2d50' : '#d9d4cc',
                         borderWidth: 1,
                         padding: 12,
                         cornerRadius: 10,
@@ -375,7 +375,7 @@ foreach ($budgetRows as $br) {
                 datasets: [{
                     data: <?= json_encode($katValues) ?>,
                     backgroundColor: catColors.slice(0, <?= count($katLabels) ?>),
-                    borderColor: isDark ? '#0f1f3a' : '#faf8ff',
+                    borderColor: isDark ? '#0f1f3a' : '#f5f2ec',
                     borderWidth: 3,
                     hoverOffset: 6
                 }]
@@ -396,10 +396,10 @@ foreach ($budgetRows as $br) {
                         }
                     },
                     tooltip: {
-                        backgroundColor: isDark ? '#1a2d50' : '#faf8ff',
-                        titleColor: isDark ? '#f0f4fb' : '#1a1230',
-                        bodyColor: isDark ? '#e2e8f4' : '#2d2545',
-                        borderColor: isDark ? '#1a2d50' : '#e0dced',
+                        backgroundColor: isDark ? '#1a2d50' : '#f5f2ec',
+                        titleColor: isDark ? '#f0f4fb' : '#1a1815',
+                        bodyColor: isDark ? '#e2e8f4' : '#2c2a25',
+                        borderColor: isDark ? '#1a2d50' : '#d9d4cc',
                         borderWidth: 1,
                         padding: 12,
                         cornerRadius: 10,

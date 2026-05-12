@@ -66,44 +66,44 @@
    LIGHT THEME OVERRIDE
 ======================== */
 [data-theme="light"] {
-    /* Backgrounds — Soft Lavender */
-    --bg-body: #f3f1f9;
-    --bg-card: #faf8ff;
-    --bg-card-hover: #f0edf8;
-    --bg-sidebar: #1a1530;
-    --bg-input: #f6f4fc;
-    --bg-overlay: rgba(30,20,50,.35);
+    /* Backgrounds — Warm Cream / Stone */
+    --bg-body: #e8e4de;
+    --bg-card: #f5f2ec;
+    --bg-card-hover: #edeae3;
+    --bg-sidebar: #1c1a17;
+    --bg-input: #f0ede7;
+    --bg-overlay: rgba(30,25,18,.4);
 
-    --text-primary: #2d2545;
-    --text-secondary: #6b6188;
-    --text-muted: #9990ad;
-    --text-heading: #1a1230;
+    --text-primary: #2c2a25;
+    --text-secondary: #65605a;
+    --text-muted: #938e86;
+    --text-heading: #1a1815;
 
-    --border: #e0dced;
-    --border-light: #ece8f5;
+    --border: #d9d4cc;
+    --border-light: #e5e1da;
 
-    --shadow-card: 0 1px 8px rgba(80,60,120,.06);
-    --shadow-lg: 0 16px 48px rgba(80,60,120,.1);
+    --shadow-card: 0 1px 8px rgba(60,50,30,.07);
+    --shadow-lg: 0 16px 48px rgba(60,50,30,.12);
 
-    --accent: #6d5bdb;
-    --accent-hover: #5a47c4;
-    --accent-glow: rgba(109,91,219,.08);
+    --accent: #4a6cf7;
+    --accent-hover: #3b5be0;
+    --accent-glow: rgba(74,108,247,.1);
     --green: #16a34a;
-    --green-bg: #f0fdf4;
-    --green-border: #bbf7d0;
+    --green-bg: #eef7f0;
+    --green-border: #b5e6c5;
     --red: #dc2626;
-    --red-bg: #fef2f2;
-    --red-border: #fecaca;
-    --amber: #d97706;
-    --amber-bg: #fffbeb;
-    --amber-border: #fde68a;
-    --purple: #7c3aed;
-    --purple-bg: #f5f3ff;
-    --purple-border: #ddd6fe;
+    --red-bg: #f8efee;
+    --red-border: #f0c5c5;
+    --amber: #c47a08;
+    --amber-bg: #f6f0e4;
+    --amber-border: #e8d5a8;
+    --purple: #6d4de0;
+    --purple-bg: #f0eef8;
+    --purple-border: #d0c9ef;
 
-    --sidebar-active: #6d5bdb;
-    --sidebar-text: #8880a0;
-    --sidebar-hover: #241e40;
+    --sidebar-active: #4a6cf7;
+    --sidebar-text: #8a857e;
+    --sidebar-hover: #2a2722;
 }
 
 /* ========================
