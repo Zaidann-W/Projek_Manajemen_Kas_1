@@ -24,6 +24,38 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role) VALUES (?, ?, ?, 'admin')");
         $stmt->execute([$nama, $email, $pw]);
+        $newUserId = $conn->lastInsertId();
+
+        // === Insert kategori default UMKM ===
+        $defaultKategori = [
+            // Pemasukan
+            ['masuk', 'Penjualan Produk'],
+            ['masuk', 'Penjualan Makanan'],
+            ['masuk', 'Penjualan Minuman'],
+            ['masuk', 'Pesanan Online'],
+            ['masuk', 'Pesanan Catering'],
+            ['masuk', 'Jasa Layanan'],
+            ['masuk', 'Modal Masuk'],
+            ['masuk', 'Komisi / Bonus'],
+            ['masuk', 'Pendapatan Lain-lain'],
+            // Pengeluaran
+            ['keluar', 'Belanja Bahan Baku'],
+            ['keluar', 'Gaji Karyawan'],
+            ['keluar', 'Listrik'],
+            ['keluar', 'Air'],
+            ['keluar', 'Gas LPG'],
+            ['keluar', 'Sewa Tempat'],
+            ['keluar', 'Biaya Kemasan'],
+            ['keluar', 'Biaya Transportasi'],
+            ['keluar', 'Biaya Pemasaran / Iklan'],
+            ['keluar', 'Perawatan Peralatan'],
+            ['keluar', 'Perlengkapan'],
+            ['keluar', 'Biaya tak terduga'],
+        ];
+        $stmtKat = $conn->prepare("INSERT INTO kategori_cashflow (user_id, kategori, nama_kategori) VALUES (?, ?, ?)");
+        foreach ($defaultKategori as $k) {
+            $stmtKat->execute([$newUserId, $k[0], $k[1]]);
+        }
 
         $_SESSION['success'] = 'Registrasi berhasil, silahkan login';
         header("Location: login.php"); exit;
