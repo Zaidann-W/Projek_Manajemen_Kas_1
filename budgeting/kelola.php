@@ -26,7 +26,6 @@ if (count($kategoriList) > 0) {
             WHERE user_id IN ({$biz['placeholders']})
               AND tipe = 'pengeluaran'
               AND kategoricf_id IS NOT NULL
-              AND tanggal >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
             GROUP BY kategoricf_id, YEAR(tanggal), MONTH(tanggal)
         ) AS monthly
         GROUP BY kategoricf_id
@@ -157,7 +156,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
             <div id="spendingInfo" class="spending-info" style="display:none">
                 <div class="spending-info-inner">
                     <div class="spending-info-row">
-                        <span class="spending-label">Rata-rata / bulan</span>
+                        <span class="spending-label" id="avgLabel">Rata-rata / bulan</span>
                         <span class="spending-value" id="avgSpending">-</span>
                     </div>
                     <div class="spending-info-row">
@@ -360,6 +359,7 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
     var select = document.getElementById('kategoriSelect');
     var infoBox = document.getElementById('spendingInfo');
     var avgEl = document.getElementById('avgSpending');
+    var avgLabel = document.getElementById('avgLabel');
     var maxEl = document.getElementById('maxSpending');
     var lastEl = document.getElementById('lastSpending');
     var chipsEl = document.getElementById('suggestionChips');
@@ -398,9 +398,11 @@ $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agust
 
         // Tampilkan info
         if (data) {
+            avgLabel.textContent = 'Rata-rata / bulan' + (data.months > 1 ? ' (' + data.months + ' bln)' : '');
             avgEl.textContent = formatRp(data.avg);
             maxEl.textContent = formatRp(data.max);
         } else {
+            avgLabel.textContent = 'Rata-rata / bulan';
             avgEl.textContent = '-';
             maxEl.textContent = '-';
         }
