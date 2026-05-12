@@ -1,20 +1,6 @@
 <?php
-/**
- * Daftar kategori default UMKM.
- * 
- * Mau tambah/hapus/edit kategori default? Edit di sini saja.
- * File ini dipakai otomatis saat:
- *  - User baru daftar (auth/register.php)
- *  - User klik tombol "+ Tambah Kategori Default" (data/kategoricf.php)
- * 
- * Format: ['masuk'/'keluar', 'Nama Kategori']
- */
-
 $defaultKategori = [
 
-    // ==========================================
-    //  PEMASUKAN
-    // ==========================================
     ['masuk', 'Penjualan Produk'],
     ['masuk', 'Penjualan Makanan'],
     ['masuk', 'Penjualan Minuman'],
@@ -25,9 +11,6 @@ $defaultKategori = [
     ['masuk', 'Komisi / Bonus'],
     ['masuk', 'Pendapatan Lain-lain'],
 
-    // ==========================================
-    //  PENGELUARAN
-    // ==========================================
     ['keluar', 'Belanja Bahan Baku'],
     ['keluar', 'Gaji Karyawan'],
     ['keluar', 'Listrik'],
